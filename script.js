@@ -272,8 +272,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentTime = Date.now();
             const timeSinceLastDelete = currentTime - lastDeletedMessageTime;
             
-            // If it's been more than 2 minutes since we deleted a message
-            if (timeSinceLastDelete > 120000) {
+            // If it's been more than 2 minutes since we deleted a message and we're not rate limited
+            if (timeSinceLastDelete > 120000 && !isRateLimited) {
                 addLogMessage('system', 'No messages deleted for 2 minutes. Resetting search...');
                 
                 // Force a full reset to break out of any potential loops
@@ -292,6 +292,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Restart the purge process
                 purgeMessages();
+                // Also restart the real-time watcher
+                startRealTimeWatcher();
             }
         }, 30000);
     }
@@ -339,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isRateLimited = false;
                 rateLimitResetTime = null;
                 purgeStatusElement.textContent = 'Running';
-                addLogMessage('system', 'Rate limit expired, resuming operations');
+                // Don't log here since handleRateLimit will handle it
             }
         }
         
@@ -394,8 +396,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add this message ID to our known set
                 knownMessageIds.add(message.id);
                 
-                // Only add messages from the current user
-                if (message.author.id === currentUserId) {
+                // Only add messages from the current user that are regular messages
+                if (message.author.id === currentUserId && isRegularMessage(message)) {
                     newMessages.push(message);
                 }
             }
@@ -481,6 +483,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 addLogMessage('system', 'Too many consecutive errors. Waiting 10 seconds...');
                 await new Promise(resolve => setTimeout(resolve, 10000));
                 consecutiveErrors = 0;
+                // Force a restart after multiple errors
+                resetPurgeState();
+                purgeMessages();
             }
         }
     }
@@ -493,6 +498,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const readableTime = new Date(rateLimitResetTime).toLocaleTimeString();
         addLogMessage('system', `Rate limited. Resuming at ${readableTime} (${retryAfter} seconds)`);
         purgeStatusElement.textContent = `Rate limited (${retryAfter}s)`;
+
+        // Schedule the resume operation
+        setTimeout(() => {
+            isRateLimited = false;
+            rateLimitResetTime = null;
+            purgeStatusElement.textContent = 'Running';
+            addLogMessage('system', 'Rate limit expired, resuming operations');
+            
+            // Force a reset and restart if we've been rate limited
+            resetPurgeState();
+            purgeMessages();
+            
+            // Also restart the real-time watcher
+            startRealTimeWatcher();
+        }, (retryAfter * 1000) + 100);
     }
 
     // Function to update login status in UI
@@ -584,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isRateLimited = false;
                 rateLimitResetTime = null;
                 purgeStatusElement.textContent = 'Running';
-                addLogMessage('system', 'Rate limit expired, resuming operations');
+                // Don't log here since handleRateLimit will handle it
             }
         }
 
@@ -690,7 +710,9 @@ document.addEventListener('DOMContentLoaded', () => {
             messages.forEach(msg => knownMessageIds.add(msg.id));
             
             // Filter messages to only include those from the current user
-            const userMessages = messages.filter(message => message.author.id === currentUserId);
+            const userMessages = messages.filter(message => 
+                message.author.id === currentUserId && isRegularMessage(message)
+            );
             
             if (userMessages.length === 0) {
                 // Don't spam log with "no messages" - just continue to next batch
@@ -738,10 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const rateLimit = await deleteResponse.json();
                         const retryAfter = rateLimit.retry_after || 5;
                         handleRateLimit(retryAfter);
-                        
-                        // Try again after rate limit expires
-                        setTimeout(purgeMessages, retryAfter * 1000 + 100);
-                        return;
+                        return; // Let handleRateLimit manage the retry
                     } else if (deleteResponse.status === 404) {
                         // Message not found - already deleted or doesn't exist
                         addLogMessage('system', `Message ${message.id} not found (already deleted)`);
@@ -781,12 +800,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If we get too many consecutive errors, wait longer
                 if (consecutiveErrors > 5) {
                     addLogMessage('system', 'Too many consecutive errors. Waiting 10 seconds...');
-                    setTimeout(purgeMessages, 10000);
-                    consecutiveErrors = 0;
+                    setTimeout(() => {
+                        consecutiveErrors = 0;
+                        // Force a reset and restart after multiple errors
+                        resetPurgeState();
+                        purgeMessages();
+                    }, 10000);
                 } else {
                     setTimeout(purgeMessages, 5000); // Retry after 5 seconds
                 }
             }
         }
+    }
+
+    // Function to check if a message is a regular deletable message
+    function isRegularMessage(message) {
+        // List of message types that we want to skip
+        const systemMessageTypes = [
+            // Channel/thread related
+            'CHANNEL_NAME_CHANGE',
+            'CHANNEL_ICON_CHANGE',
+            'CHANNEL_PINNED_MESSAGE',
+            'THREAD_CREATED',
+            'THREAD_STARTER_MESSAGE',
+            // Call related
+            'CALL',
+            'PHONE_CALL',
+            'CHANNEL_MISSED_CALL',
+            // Member related
+            'RECIPIENT_ADD',
+            'RECIPIENT_REMOVE',
+            'GUILD_MEMBER_JOIN',
+            // Group chat related
+            'GROUP_CHAT_CREATE',
+            'GROUP_CHAT_NAME_CHANGE',
+            'GROUP_CHAT_ICON_CHANGE',
+            // Other system messages
+            'GUILD_DISCOVERY_DISQUALIFIED',
+            'GUILD_DISCOVERY_REQUALIFIED',
+            'GUILD_DISCOVERY_GRACE_PERIOD_INITIAL_WARNING',
+            'GUILD_DISCOVERY_GRACE_PERIOD_FINAL_WARNING',
+            'SYSTEM',
+            'APPLICATION_COMMAND'
+        ];
+
+        // Skip if it's a system message type
+        if (systemMessageTypes.includes(message.type)) {
+            return false;
+        }
+
+        // Skip if it's a system message or webhook
+        if (message.system || message.webhook_id) {
+            return false;
+        }
+
+        // Only allow default messages, replies, and attachments
+        return message.type === 0 || // Default
+               message.type === 19 || // Reply
+               message.type === 'DEFAULT' || // Text message
+               message.attachments?.length > 0; // Has attachments
     }
 });
