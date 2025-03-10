@@ -1,0 +1,589 @@
+:root {
+    --primary-color: #5865F2;
+    --primary-dark: #4752c4;
+    --secondary-color: #99AAB5;
+    --danger-color: #ED4245;
+    --success-color: #57F287;
+    --warning-color: #FEE75C;
+    --text-color: #FFFFFF;
+    --text-light: #B9BBBE;
+    --bg-color: #36393F;
+    --card-bg: #2F3136;
+    --input-bg: #40444B;
+    --border-color: #202225;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --radius: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 800px;
+    width: 100%;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    flex: 1;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.offline {
+    background-color: var(--text-light);
+}
+
+.online {
+    background-color: var(--success-color);
+}
+
+.login-section, .control-section, .log-section {
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.input-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+input, select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    transition: border-color 0.3s;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.primary-btn {
+    background-color: var(--primary-color);
+    color: white;
+    width: 100%;
+}
+
+.primary-btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.start-btn {
+    background-color: var(--success-color);
+    color: #202225;
+}
+
+.start-btn:hover {
+    background-color: #45c46f;
+}
+
+.stop-btn {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.stop-btn:hover {
+    background-color: #d03a3d;
+}
+
+.stop-btn:disabled {
+    background-color: #4f4f4f;
+    color: #8e8e8e;
+    cursor: not-allowed;
+}
+
+.clear-btn {
+    background-color: var(--secondary-color);
+    color: #202225;
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+}
+
+.clear-btn:hover {
+    background-color: #8096a1;
+}
+
+.control-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--input-bg);
+    padding: 1rem;
+    border-radius: var(--radius);
+}
+
+.stat-label {
+    font-weight: 500;
+    color: var(--text-light);
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.log-container {
+    background-color: var(--input-bg);
+    border-radius: var(--radius);
+    padding: 1rem;
+    height: 300px;
+    overflow-y: auto;
+}
+
+.empty-log-message {
+    color: var(--text-light);
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.log-item {
+    background-color: var(--card-bg);
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    margin-bottom: 0.5rem;
+    border-left: 3px solid var(--primary-color);
+}
+
+.log-item .message-content {
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+
+.log-item .message-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    background-color: var(--card-bg);
+    margin-top: auto;
+}
+
+.disclaimer {
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.credits {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.credits p {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.social-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.social-link {
+    color: var(--text-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.3s;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius);
+    background-color: var(--input-bg);
+}
+
+.social-link:hover {
+    color: var(--primary-color);
+}
+
+/* Copyable Discord username */
+.copyable-username {
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius);
+    background-color: var(--input-bg);
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.copyable-username:hover {
+    color: var(--primary-color);
+    background-color: var(--input-bg);
+}
+
+.username {
+    position: relative;
+}
+
+.copy-tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius);
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.copyable-username:hover .copy-tooltip {
+    opacity: 1;
+}
+
+.copyable-username.copied .copy-tooltip {
+    content: "Copied!";
+    opacity: 1;
+    background-color: var(--success-color);
+    color: #202225;
+}
+
+.copyable-username.copied .copy-tooltip::after {
+    content: "Copied!";
+}
+
+.copyable-username.copied {
+    background-color: var(--success-color);
+    color: #202225;
+}
+
+/* Speed control slider */
+.slider-container {
+    margin-top: 1rem;
+}
+
+.speed-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    background: var(--input-bg);
+    outline: none;
+    margin: 10px 0;
+}
+
+.speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.speed-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.speed-value {
+    text-align: center;
+    font-weight: bold;
+    color: var(--text-light);
+}
+
+.speed-input {
+    width: 80px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+.flex-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    body {
+        font-size: 14px;
+    }
+    
+    .container {
+        margin: 0.8rem auto;
+        padding: 0 0.8rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+        margin-bottom: 1.2rem;
+    }
+    
+    .login-section, .control-section, .log-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+    }
+    
+    .control-buttons {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        border-radius: 10px;
+    }
+    
+    .stats {
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 0.8rem;
+    }
+    
+    .log-container {
+        height: 250px;
+        padding: 0.8rem;
+    }
+    
+    .log-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .clear-btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
+    
+    .flex-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+    
+    .speed-input {
+        width: 100%;
+        margin-left: 0;
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+    
+    .speed-slider {
+        height: 10px;
+        margin: 15px 0;
+    }
+    
+    .speed-slider::-webkit-slider-thumb {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .speed-slider::-moz-range-thumb {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .speed-value {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+    
+    .log-item {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .social-links {
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 100%;
+        max-width: 250px;
+        margin: 0 auto;
+    }
+    
+    .social-link, .copyable-username {
+        justify-content: center;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+        width: 100%;
+    }
+    
+    footer {
+        padding: 1.2rem 0.8rem;
+    }
+    
+    .disclaimer {
+        padding: 0 0.8rem;
+    }
+    
+    /* Fix for mobile touch targets */
+    input, button, .social-link, .copyable-username {
+        min-height: 44px; /* Apple's recommended minimum touch target size */
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 601px) and (max-width: 900px) {
+    .container {
+        max-width: 90%;
+    }
+    
+    .log-container {
+        height: 350px;
+    }
+    
+    .social-link, .copyable-username {
+        padding: 0.5rem 0.8rem;
+    }
+}
+
+/* Landscape mobile adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+    .container {
+        margin: 0.5rem auto;
+    }
+    
+    .app-header {
+        margin-bottom: 0.8rem;
+    }
+    
+    .login-section, .control-section, .log-section {
+        padding: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .log-container {
+        height: 150px;
+    }
+    
+    footer {
+        padding: 0.8rem;
+    }
+    
+    .social-links {
+        flex-direction: row;
+    }
+} 

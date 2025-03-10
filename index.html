@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Message Purger</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="app-header">
+            <h1>Discord Message Purger</h1>
+            <div class="status-indicator">
+                <span class="status-dot offline"></span>
+                <span class="status-text">Not logged in</span>
+            </div>
+        </div>
+
+        <div class="login-section" id="loginSection">
+            <div class="input-group">
+                <label for="token">Discord Token</label>
+                <div class="input-wrapper">
+                    <input type="password" id="token" placeholder="Enter your Discord token">
+                    <button class="toggle-password" id="toggleToken">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            <button class="btn primary-btn" id="loginBtn">Login</button>
+        </div>
+
+        <div class="control-section hidden" id="controlSection">
+            <div class="input-group">
+                <label for="channelId">Channel ID</label>
+                <input type="text" id="channelId" placeholder="Enter channel ID">
+            </div>
+            
+            <div class="slider-container">
+                <label for="speedSlider">Deletion Speed (ms between requests)</label>
+                <div class="flex-row">
+                    <input type="range" min="10" max="5000" value="100" class="speed-slider" id="speedSlider">
+                    <input type="number" id="speedInput" class="speed-input" value="100" min="10" max="5000">
+                </div>
+                <div class="speed-value" id="speedValue">Current: 100ms (Low - may trigger rate limits)</div>
+            </div>
+            
+            <div class="control-buttons">
+                <button class="btn start-btn" id="startBtn">
+                    <i class="fas fa-play"></i> Start Purging
+                </button>
+                <button class="btn stop-btn" id="stopBtn" disabled>
+                    <i class="fas fa-stop"></i> Stop
+                </button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Messages Deleted:</span>
+                    <span class="stat-value" id="deletedCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value" id="purgeStatus">Idle</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-section">
+            <div class="log-header">
+                <h2>Deletion Log</h2>
+                <button class="btn clear-btn" id="clearLogBtn">Clear Log</button>
+            </div>
+            <div class="log-container" id="logContainer">
+                <div class="empty-log-message">No messages deleted yet</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p class="disclaimer">Disclaimer: Use responsibly and in accordance with Discord's Terms of Service.</p>
+        <div class="credits">
+            <p>Made by Kira</p>
+            <div class="social-links">
+                <a href="https://t.me/shofts" target="_blank" class="social-link">
+                    <i class="fab fa-telegram"></i> @shofts
+                </a>
+                <div class="copyable-username">
+                    <i class="fab fa-discord"></i>
+                    <span class="username" id="discordUsername">xdzc_x3z</span>
+                    <span class="copy-tooltip">Click to copy</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Add functionality to copy Discord username
+        document.getElementById('discordUsername').addEventListener('click', function() {
+            const username = this.textContent;
+            navigator.clipboard.writeText(username).then(() => {
+                // Show copied message
+                this.parentElement.classList.add('copied');
+                setTimeout(() => {
+                    this.parentElement.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        });
+    </script>
+</body>
+</html> 
