@@ -39,8 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let rateLimitResetTime = null; // When the rate limit resets
     let noMessagesFoundCount = 0; // Track how many times we've found no messages
     let isSearchingOlderMessages = true; // Whether we're searching older messages
-    let isSearchingNewerMessages = true; // Whether we're searching newer messages
+    let isSearchingNewerMessages = false; // Whether we're searching newer messages
     let firstMessageId = null; // Track the first message ID for searching newer messages
+    let lastSearchTime = Date.now(); // Track when we last searched for messages
+    let searchDirectionSwitchCount = 0; // Track how many times we've switched search directions
+    let lastDeletedMessageTime = Date.now(); // Track when we last deleted a message
+    let fullResetCount = 0; // Track how many times we've done a full reset
 
     // Initialize speed controls with lower minimum
     speedSlider.min = 10; // Allow much lower delay
@@ -169,7 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
         isRateLimited = false; // Reset rate limit flag
         rateLimitResetTime = null; // Reset rate limit time
         isSearchingOlderMessages = true; // Reset searching older messages flag
-        isSearchingNewerMessages = true; // Reset searching newer messages flag
+        isSearchingNewerMessages = false; // Reset searching newer messages flag
+        lastSearchTime = Date.now(); // Reset last search time
+        searchDirectionSwitchCount = 0; // Reset search direction switch count
+        lastDeletedMessageTime = Date.now(); // Reset last deleted message time
+        fullResetCount = 0; // Reset full reset count
     }
 
     // Login functionality
@@ -243,12 +251,56 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Start real-time watcher for new messages
         startRealTimeWatcher();
+        
+        // Start a watchdog timer to ensure we don't get stuck
+        startWatchdogTimer();
     });
+
+    // Start watchdog timer to prevent getting stuck
+    function startWatchdogTimer() {
+        if (purgeInterval) {
+            clearInterval(purgeInterval);
+        }
+        
+        // Check every 30 seconds if we're making progress
+        purgeInterval = setInterval(() => {
+            if (!isPurging) {
+                clearInterval(purgeInterval);
+                return;
+            }
+            
+            const currentTime = Date.now();
+            const timeSinceLastDelete = currentTime - lastDeletedMessageTime;
+            
+            // If it's been more than 2 minutes since we deleted a message
+            if (timeSinceLastDelete > 120000) {
+                addLogMessage('system', 'No messages deleted for 2 minutes. Resetting search...');
+                
+                // Force a full reset to break out of any potential loops
+                fullResetCount++;
+                resetPurgeState();
+                
+                // If we've reset multiple times and still no progress, try a different approach
+                if (fullResetCount > 3) {
+                    addLogMessage('system', 'Multiple resets with no progress. Trying a different approach...');
+                    // Try a completely different time range
+                    lastMessageId = null;
+                    firstMessageId = null;
+                    isSearchingOlderMessages = true;
+                    isSearchingNewerMessages = false;
+                }
+                
+                // Restart the purge process
+                purgeMessages();
+            }
+        }, 30000);
+    }
 
     // Stop purging messages
     stopBtn.addEventListener('click', () => {
         isPurging = false;
         clearInterval(messageWatcher);
+        clearInterval(purgeInterval);
         
         startBtn.disabled = false;
         stopBtn.disabled = true;
@@ -375,6 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             deletedCount++;
                             deletedCountElement.textContent = deletedCount;
                             consecutiveErrors = 0; // Reset error counter on success
+                            lastDeletedMessageTime = Date.now(); // Update last deleted message time
                             
                             // Add to log
                             addLogMessage(
@@ -538,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // Update status to show we're searching
             purgeStatusElement.textContent = 'Searching...';
+            lastSearchTime = Date.now();
             
             // Determine which direction to search
             let url;
@@ -577,6 +631,15 @@ document.addEventListener('DOMContentLoaded', () => {
             // If no messages found in current direction
             if (messages.length === 0) {
                 noMessagesFoundCount++;
+                searchDirectionSwitchCount++;
+                
+                // If we've switched directions too many times with no results, do a full reset
+                if (searchDirectionSwitchCount >= 4) {
+                    addLogMessage('system', 'No messages found after multiple direction switches. Resetting search...');
+                    resetPurgeState();
+                    setTimeout(purgeMessages, 1000);
+                    return;
+                }
                 
                 // If we're searching older messages and found none, switch to newer messages
                 if (isSearchingOlderMessages) {
@@ -610,8 +673,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Reset no messages found counter since we found messages
+            // Reset counters since we found messages
             noMessagesFoundCount = 0;
+            searchDirectionSwitchCount = 0;
             
             // Update message IDs for pagination
             if (isSearchingOlderMessages && messages.length > 0) {
@@ -658,6 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         deletedCount++;
                         deletedCountElement.textContent = deletedCount;
                         consecutiveErrors = 0; // Reset error counter on success
+                        lastDeletedMessageTime = Date.now(); // Update last deleted message time
                         
                         // Add to log
                         addLogMessage(
@@ -677,6 +742,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Try again after rate limit expires
                         setTimeout(purgeMessages, retryAfter * 1000 + 100);
                         return;
+                    } else if (deleteResponse.status === 404) {
+                        // Message not found - already deleted or doesn't exist
+                        addLogMessage('system', `Message ${message.id} not found (already deleted)`);
                     } else {
                         // Other error
                         addLogMessage('system', `Failed to delete message: ${deleteResponse.status} - ${message.id}`);
