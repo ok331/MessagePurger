@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Message Purger</title>
+    <title>Discord Purger</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -79,36 +79,8 @@
 
     <footer>
         <p class="disclaimer">Disclaimer: Use responsibly and in accordance with Discord's Terms of Service.</p>
-        <div class="credits">
-            <p>Made by Kira</p>
-            <div class="social-links">
-                <a href="https://t.me/shofts" target="_blank" class="social-link">
-                    <i class="fab fa-telegram"></i> @player519
-                </a>
-                <div class="copyable-username">
-                    <i class="fab fa-discord">okwtf331</i>
-                    <span class="username" id="discordUsername"></span>
-                    <span class="copy-tooltip">Click to copy</span>
-                </div>
-            </div>
-        </div>
     </footer>
 
     <script src="script.js"></script>
-    <script>
-        // Add functionality to copy Discord username
-        document.getElementById('discordUsername').addEventListener('click', function() {
-            const username = this.textContent;
-            navigator.clipboard.writeText(username).then(() => {
-                // Show copied message
-                this.parentElement.classList.add('copied');
-                setTimeout(() => {
-                    this.parentElement.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                console.error('Could not copy text: ', err);
-            });
-        });
-    </script>
 </body>
 </html> 
