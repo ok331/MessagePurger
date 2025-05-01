@@ -269,100 +269,6 @@ footer {
     opacity: 0.7;
 }
 
-.credits {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.credits p {
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-.social-links {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.social-link {
-    color: var(--text-light);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    transition: color 0.3s;
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--radius);
-    background-color: var(--input-bg);
-}
-
-.social-link:hover {
-    color: var(--primary-color);
-}
-
-/* Copyable Discord username */
-.copyable-username {
-    color: var(--text-light);
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--radius);
-    background-color: var(--input-bg);
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.copyable-username:hover {
-    color: var(--primary-color);
-    background-color: var(--input-bg);
-}
-
-.username {
-    position: relative;
-}
-
-.copy-tooltip {
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--radius);
-    font-size: 0.7rem;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-.copyable-username:hover .copy-tooltip {
-    opacity: 1;
-}
-
-.copyable-username.copied .copy-tooltip {
-    content: "Copied!";
-    opacity: 1;
-    background-color: var(--success-color);
-    color: #202225;
-}
-
-.copyable-username.copied .copy-tooltip::after {
-    content: "Copied!";
-}
-
-.copyable-username.copied {
-    background-color: var(--success-color);
-    color: #202225;
-}
-
 /* Speed control slider */
 .slider-container {
     margin-top: 1rem;
@@ -516,21 +422,6 @@ footer {
         margin-bottom: 0.8rem;
     }
     
-    .social-links {
-        flex-direction: column;
-        gap: 0.8rem;
-        width: 100%;
-        max-width: 250px;
-        margin: 0 auto;
-    }
-    
-    .social-link, .copyable-username {
-        justify-content: center;
-        padding: 0.8rem;
-        font-size: 0.9rem;
-        width: 100%;
-    }
-    
     footer {
         padding: 1.2rem 0.8rem;
     }
@@ -540,7 +431,7 @@ footer {
     }
     
     /* Fix for mobile touch targets */
-    input, button, .social-link, .copyable-username {
+    input, button {
         min-height: 44px; /* Apple's recommended minimum touch target size */
     }
 }
@@ -553,10 +444,6 @@ footer {
     
     .log-container {
         height: 350px;
-    }
-    
-    .social-link, .copyable-username {
-        padding: 0.5rem 0.8rem;
     }
 }
 
@@ -582,8 +469,4 @@ footer {
     footer {
         padding: 0.8rem;
     }
-    
-    .social-links {
-        flex-direction: row;
-    }
-} 
+}
